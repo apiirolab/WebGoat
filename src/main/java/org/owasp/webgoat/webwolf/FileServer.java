@@ -32,6 +32,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.owasp.webgoat.webwolf.user.WebGoatUser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -75,8 +76,16 @@ public class FileServer {
     var user = (WebGoatUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     var destinationDir = new File(fileLocation, user.getUsername());
     destinationDir.mkdirs();
-    myFile.transferTo(new File(destinationDir, myFile.getOriginalFilename()));
-    log.debug("File saved to {}", new File(destinationDir, myFile.getOriginalFilename()));
+    String sanitizedFilename = FilenameUtils.getName(myFile.getOriginalFilename());
+    if (sanitizedFilename == null || sanitizedFilename.isEmpty()) {
+      throw new IOException("Invalid file name");
+    }
+    File destinationFile = new File(destinationDir, sanitizedFilename);
+    if (!destinationFile.getCanonicalPath().startsWith(destinationDir.getCanonicalPath() + File.separator)) {
+      throw new IOException("Invalid file path");
+    }
+    myFile.transferTo(destinationFile);
+    log.debug("File saved to {}", destinationFile);
 
     return new ModelAndView(
         new RedirectView("files", true),
