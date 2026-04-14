@@ -24,6 +24,7 @@ package org.owasp.webgoat.lessons.sqlinjection.mitigation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +44,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("SqlInjectionMitigations/servers")
 @Slf4j
 public class Servers {
+
+  private static final Set<String> ALLOWED_COLUMNS =
+      Set.of("id", "hostname", "ip", "mac", "status", "description");
 
   private final LessonDataSource dataSource;
 
@@ -65,6 +69,9 @@ public class Servers {
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
   public List<Server> sort(@RequestParam String column) throws Exception {
+    if (!ALLOWED_COLUMNS.contains(column.toLowerCase())) {
+      throw new IllegalArgumentException("Invalid column name: " + column);
+    }
     List<Server> servers = new ArrayList<>();
 
     try (var connection = dataSource.getConnection()) {
