@@ -24,7 +24,6 @@ package org.owasp.webgoat.lessons.jwt;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
-import static org.owasp.webgoat.lessons.jwt.JWTRefreshEndpoint.PASSWORD;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -35,12 +34,15 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.owasp.webgoat.container.plugins.LessonTest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 public class JWTRefreshEndpointTest extends LessonTest {
+
+  @Autowired private JWTRefreshEndpoint jwtRefreshEndpoint;
 
   @BeforeEach
   public void setup() {
@@ -54,7 +56,7 @@ public class JWTRefreshEndpointTest extends LessonTest {
     ObjectMapper objectMapper = new ObjectMapper();
 
     // First login to obtain tokens for Jerry
-    var loginJson = Map.of("user", "Jerry", "password", PASSWORD);
+    var loginJson = Map.of("user", "Jerry", "password", jwtRefreshEndpoint.getPassword());
     MvcResult result =
         mockMvc
             .perform(
@@ -124,7 +126,7 @@ public class JWTRefreshEndpointTest extends LessonTest {
   public void flowForJerryAlwaysWorks() throws Exception {
     ObjectMapper objectMapper = new ObjectMapper();
 
-    var loginJson = Map.of("user", "Jerry", "password", PASSWORD);
+    var loginJson = Map.of("user", "Jerry", "password", jwtRefreshEndpoint.getPassword());
     MvcResult result =
         mockMvc
             .perform(
@@ -149,7 +151,7 @@ public class JWTRefreshEndpointTest extends LessonTest {
   public void loginShouldNotWorkForJerryWithWrongPassword() throws Exception {
     ObjectMapper objectMapper = new ObjectMapper();
 
-    var loginJson = Map.of("user", "Jerry", "password", PASSWORD + "wrong");
+    var loginJson = Map.of("user", "Jerry", "password", jwtRefreshEndpoint.getPassword() + "wrong");
     mockMvc
         .perform(
             MockMvcRequestBuilders.post("/JWT/refresh/login")
@@ -162,7 +164,7 @@ public class JWTRefreshEndpointTest extends LessonTest {
   public void loginShouldNotWorkForTom() throws Exception {
     ObjectMapper objectMapper = new ObjectMapper();
 
-    var loginJson = Map.of("user", "Tom", "password", PASSWORD);
+    var loginJson = Map.of("user", "Tom", "password", jwtRefreshEndpoint.getPassword());
     mockMvc
         .perform(
             MockMvcRequestBuilders.post("/JWT/refresh/login")
@@ -176,7 +178,7 @@ public class JWTRefreshEndpointTest extends LessonTest {
     ObjectMapper objectMapper = new ObjectMapper();
     Map<String, Object> loginJson = new HashMap<>();
     loginJson.put("user", "Jerry");
-    loginJson.put("password", PASSWORD);
+    loginJson.put("password", jwtRefreshEndpoint.getPassword());
     MvcResult result =
         mockMvc
             .perform(
@@ -205,7 +207,7 @@ public class JWTRefreshEndpointTest extends LessonTest {
     ObjectMapper objectMapper = new ObjectMapper();
     Map<String, Object> loginJson = new HashMap<>();
     loginJson.put("user", "Jerry");
-    loginJson.put("password", PASSWORD);
+    loginJson.put("password", jwtRefreshEndpoint.getPassword());
     MvcResult result =
         mockMvc
             .perform(
