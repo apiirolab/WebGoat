@@ -25,6 +25,7 @@ package org.owasp.webgoat.lessons.cryptography;
 import org.owasp.webgoat.container.assignments.AssignmentEndpoint;
 import org.owasp.webgoat.container.assignments.AssignmentHints;
 import org.owasp.webgoat.container.assignments.AttackResult;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -34,10 +35,20 @@ import org.springframework.web.bind.annotation.RestController;
 @AssignmentHints({"crypto-encoding-xor.hints.1"})
 public class XOREncodingAssignment extends AssignmentEndpoint {
 
+  /**
+   * Expected plaintext that the XOR-encoded sample in the lesson decodes to. Resolved at runtime
+   * from configuration so the value is not hardcoded in this source file. The default is supplied
+   * by {@code application-webgoat.properties} and can be overridden via the {@code
+   * WEBGOAT_XOR_ANSWER} environment variable or the {@code webgoat.lesson.crypto.xor.answer}
+   * property.
+   */
+  @Value("${webgoat.lesson.crypto.xor.answer}")
+  private String expectedAnswer;
+
   @PostMapping("/crypto/encoding/xor")
   @ResponseBody
   public AttackResult completed(@RequestParam String answer_pwd1) {
-    if (answer_pwd1 != null && answer_pwd1.equals("databasepassword")) {
+    if (answer_pwd1 != null && answer_pwd1.equals(expectedAnswer)) {
       return success(this).feedback("crypto-encoding-xor.success").build();
     }
     return failed(this).feedback("crypto-encoding-xor.empty").build();
