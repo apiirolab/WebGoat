@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.owasp.webgoat.container.assignments.AssignmentEndpoint;
@@ -62,7 +63,15 @@ import org.springframework.web.bind.annotation.RestController;
 })
 public class JWTRefreshEndpoint extends AssignmentEndpoint {
 
-  public static final String PASSWORD = "bm5nhSkxCXZkKRy4";
+  // The password is resolved at runtime from the WEBGOAT_JWT_REFRESH_PASSWORD environment
+  // variable (or the equivalent JVM system property) so that no credential is hardcoded in
+  // source. If neither is set, a random one-time value is generated on startup. Operators
+  // running this lesson should configure WEBGOAT_JWT_REFRESH_PASSWORD to a known value so the
+  // bundled lesson UI/JS can authenticate the "Jerry" account.
+  public static final String PASSWORD =
+      Optional.ofNullable(System.getenv("WEBGOAT_JWT_REFRESH_PASSWORD"))
+          .or(() -> Optional.ofNullable(System.getProperty("webgoat.jwt.refresh.password")))
+          .orElseGet(() -> RandomStringUtils.randomAlphanumeric(16));
   private static final String JWT_PASSWORD = "bm5n3SkxCX4kKRy4";
   private static final List<String> validRefreshTokens = new ArrayList<>();
 
