@@ -138,6 +138,11 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <thymeleaf.version>3.0.15.RELEASE</thymeleaf.version>
+    <!-- Pin Undertow to a patched 2.2.x release to address transitive CVEs in
+         spring-boot-starter-undertow 2.7.1's bundled undertow-core 2.2.18.Final.
+         Overriding this property propagates to undertow-core, undertow-servlet,
+         and undertow-websockets-jsr through Spring Boot's dependency management. -->
+    <undertow.version>2.2.39.Final</undertow.version>
     <webdriver.version>4.3.1</webdriver.version>
     <webgoat.port>8080</webgoat.port>
     <webwolf.port>9090</webwolf.port>
